@@ -10,7 +10,7 @@ before_build:
 build:
   verbosity: normal
 artifacts:
-- path: $(configuration)\netcoreapp1.0\*.dll
+- path: src\ConsoleClient\bin\$(configuration)\netcoreapp1.0\*.dll
   name: CoreSpeed
 deploy:
 - provider: GitHub
