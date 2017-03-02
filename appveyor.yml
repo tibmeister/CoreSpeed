@@ -4,7 +4,22 @@ pull_requests:
 branches:
   only:
   - master
+platform: Any CPU
 before_build:
 - cmd: dotnet restore
 build:
   verbosity: normal
+artifacts:
+- path: $(configuration)\netcoreapp1.0\*.dll
+  name: CoreSpeed
+deploy:
+- provider: GitHub
+  tag: v1.0.0
+  release: CoreSpeed-v1.0.0
+  description: CoreSpeed-v1.0.0 (${appveyor_build_version})
+  auth_token:
+    secure: q6ExJHmh2+7wq6n5ES2fAlSmk2ArSQuieqbXqMBWdzaRDmLAeKVD50TbWBZ0Ib2R
+  artifact: $(configuration)\netcoreapp1.0\*.dll
+  force_update: true
+  on:
+    branch: master
