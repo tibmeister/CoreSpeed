@@ -10,7 +10,7 @@ before_build:
 build:
   verbosity: normal
 artifacts:
-- path: src\ConsoleClient\bin\$(configuration)\netcoreapp1.0\*.dll
+- path: src\ConsoleClient\bin\Debug\netcoreapp1.0\*.dll
   name: CoreSpeed
 deploy:
 - provider: GitHub
@@ -19,7 +19,7 @@ deploy:
   description: CoreSpeed-v1.0.0 (${appveyor_build_version})
   auth_token:
     secure: q6ExJHmh2+7wq6n5ES2fAlSmk2ArSQuieqbXqMBWdzaRDmLAeKVD50TbWBZ0Ib2R
-  artifact: src\ConsoleClient\bin\$(configuration)\netcoreapp1.0\*.dll
+  artifact: src\ConsoleClient\bin\Debug\netcoreapp1.0\*.dll
   force_update: true
   on:
     branch: master
