@@ -1,18 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8EC1550F-BDE7-441F-808D-04242F2E7358}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{82864B3B-4B60-4C02-BCC8-533FBE478169}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreSpeed", "src\CoreSpeed\CoreSpeed.csproj", "{717FF9B2-9C64-4964-875F-1844B818D1C9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleClient", "src\ConsoleClient\ConsoleClient.csproj", "{96AE2E6F-A6E9-4460-95C2-2ACC7EA3E1FF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{717FF9B2-9C64-4964-875F-1844B818D1C9} = {717FF9B2-9C64-4964-875F-1844B818D1C9}
 	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CoreSpeed", "src\CoreSpeed\CoreSpeed.xproj", "{717FF9B2-9C64-4964-875F-1844B818D1C9}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "ConsoleClient", "src\ConsoleClient\ConsoleClient.xproj", "{96AE2E6F-A6E9-4460-95C2-2ACC7EA3E1FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -80,12 +80,14 @@ namespace CoreSpeed
         {
             var testData = GenerateDownloadUrls(server, retryCount);
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
             return TestSpeed(testData, async (client, url) =>
             {
                 var data = client.GetByteArrayAsync(url).Result;
 
                 return data.Length;
             }, simultaniousDownloads);
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         }
 
         /// <summary>
@@ -95,12 +97,14 @@ namespace CoreSpeed
         public double TestUploadSpeed(Server server, int simultaniousUploads = 2, int retryCount = 2)
         {
             var testData = GenerateUploadData(retryCount);
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
             return TestSpeed(testData, async (client, uploadData) =>
             {
                 //await client.UploadValuesTaskAsync(server.Url, uploadData).ConfigureAwait(false);
                 client.PostAsync(server.Url, new StringContent(uploadData.ToString())).RunSynchronously();
                 return uploadData[0].Length;
             }, simultaniousUploads);
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         }
 
 
@@ -132,6 +136,7 @@ namespace CoreSpeed
             timer.Stop();
 
             double totalSize = downloadTasks.Sum(task => task.Result);
+            
             return (totalSize * 8 / 1024) / ((double)timer.ElapsedMilliseconds / 1000);
         }
 

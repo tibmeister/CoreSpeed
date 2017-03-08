@@ -24,10 +24,13 @@ namespace ConsoleClient
             var bestServer = SelectBestServer(servers);
 
             Console.WriteLine("Testing speed...");
-            var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
-            PrintSpeed("Download", downloadSpeed);
+            //var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
+            //PrintSpeed("Download", downloadSpeed);
             //var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
             //PrintSpeed("Upload", uploadSpeed);
+
+            var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
+            PrintSpeed("Upload", uploadSpeed);
 
             Console.WriteLine("Press a key to exit.");
             Console.ReadKey();
