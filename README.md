@@ -8,7 +8,7 @@ Currently the only CLI cross-platform solution is a Python script, so I wanted t
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-### Build status of master branches
+### Build status of branches
 | AppVeyor (Windows) |
 |--------------------|
 |[![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/master?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/master)|
