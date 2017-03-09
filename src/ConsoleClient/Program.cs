@@ -13,6 +13,8 @@ namespace ConsoleClient
         private static CoreSpeedClient client;
         private const string DefaultCountry = "United States";
 
+        public static string DefaultCountry1 => DefaultCountry;
+
         public static void Main(string[] args)
         {
             client = new CoreSpeedClient();
@@ -24,10 +26,9 @@ namespace ConsoleClient
             var bestServer = SelectBestServer(servers);
 
             Console.WriteLine("Testing speed...");
-            //var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
-            //PrintSpeed("Download", downloadSpeed);
-            //var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
-            //PrintSpeed("Upload", uploadSpeed);
+
+            var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
+            PrintSpeed("Download", downloadSpeed);
 
             var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
             PrintSpeed("Upload", uploadSpeed);
@@ -51,7 +52,7 @@ namespace ConsoleClient
         {
             Console.WriteLine();
             Console.WriteLine("Selecting best server by distance...");
-            var servers = settings.Servers.Where(s => s.Country.Equals(DefaultCountry)).Take(10).ToList();
+            var servers = settings.Servers.Where(s => s.Country.Equals(DefaultCountry1)).Take(10).ToList();
 
             foreach (var server in servers)
             {
@@ -71,11 +72,11 @@ namespace ConsoleClient
         {
             if (speed > 1024)
             {
-                Console.WriteLine("{0} speed: {1} Mbps", type, Math.Round(speed / 1024, 2));
+                Console.WriteLine("{0} speed: {1} Mbps", type, Math.Round(speed / 1024 / 1024, 2));
             }
             else
             {
-                Console.WriteLine("{0} speed: {1} Kbps", type, Math.Round(speed, 2));
+                Console.WriteLine("{0} speed: {1} Kbps", type, Math.Round(speed / 1024, 2));
             }
         }
     }

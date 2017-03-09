@@ -28,12 +28,8 @@ namespace CoreSpeed
         public CoreSpeedWebClient()
         {
             this.Timeout = 60;
-            //DefaultRequestHeaders.Add("userAgent", "Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko");
             DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:19.0) Gecko/20100101 Firefox/19.0");
-            //DefaultRequestHeaders.Add("accept", "text/xml");
             CacheControlHeaderValue cc = new CacheControlHeaderValue();
-            //cc.NoCache = false;
-            //DefaultRequestHeaders.CacheControl = cc;
         }
 
         public CoreSpeedWebClient(int TimeOutSeconds)

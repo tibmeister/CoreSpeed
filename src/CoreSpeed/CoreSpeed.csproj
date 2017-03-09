@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>CoreSpeed</AssemblyName>
     <PackageId>CoreSpeed</PackageId>
     <NetStandardImplicitPackageVersion>1.1.1</NetStandardImplicitPackageVersion>
@@ -16,6 +16,7 @@
     <ApplicationIcon />
     <OutputTypeEx>library</OutputTypeEx>
     <StartupObject />
+    <PreBuildEvent>taskkill /IM ServiceHub.DataWarehouseHost.exe /F</PreBuildEvent>
   </PropertyGroup>
 
   <ItemGroup>
