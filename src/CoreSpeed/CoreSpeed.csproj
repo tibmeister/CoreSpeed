@@ -16,7 +16,7 @@
     <ApplicationIcon />
     <OutputTypeEx>library</OutputTypeEx>
     <StartupObject />
-    <PreBuildEvent>taskkill /IM ServiceHub.DataWarehouseHost.exe /F</PreBuildEvent>
+    <!--<PreBuildEvent>taskkill /IM ServiceHub.DataWarehouseHost.exe /F</PreBuildEvent>-->
   </PropertyGroup>
 
   <ItemGroup>

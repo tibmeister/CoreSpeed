@@ -12,4 +12,4 @@ Currently the only CLI cross-platform solution is a Python script, so I wanted t
 | Source | Branch | Status |
 |-------:|-------:|-------:|
 | AppVeyor (Windows) | Master |[![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/master?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/master)|
-| AppVeyor (Windows) | CoreUpgrade |[![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/CoreUpgrade?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/CoreUpgrade)|
+| AppVeyor (Windows) | Development |[![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/development?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/development)|
