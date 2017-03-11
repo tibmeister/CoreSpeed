@@ -8,7 +8,7 @@
     <TargetFramework>netstandard1.6</TargetFramework>
     <AssemblyName>CoreSpeed</AssemblyName>
     <PackageId>CoreSpeed</PackageId>
-    <NetStandardImplicitPackageVersion>1.1.1</NetStandardImplicitPackageVersion>
+    <NetStandardImplicitPackageVersion>1.6.0</NetStandardImplicitPackageVersion>
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
