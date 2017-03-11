@@ -7,8 +7,8 @@ before_build:
 build:
   verbosity: normal
 artifacts:
-- path: '**\*.dll'
-  name: CoreSpeed
+- path: src\CoreSpeed\bin\Debug\netstandard1.6\CoreSpeed.dll
+  name: CoreSpeed.dll
 deploy:
 - provider: GitHub
   tag: v1.0.0
@@ -16,5 +16,6 @@ deploy:
   description: CoreSpeed-v1.0.0 (${appveyor_build_version})
   auth_token:
     secure: q6ExJHmh2+7wq6n5ES2fAlSmk2ArSQuieqbXqMBWdzaRDmLAeKVD50TbWBZ0Ib2R
-  artifact: '**\*.dll'
+  artifact: src\CoreSpeed\bin\Debug\netstandard1.6\CoreSpeed.dll
+  prerelease: true
   force_update: true
