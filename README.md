@@ -13,6 +13,4 @@ Currently the only CLI cross-platform solution is a Python script, so I wanted t
 | Source  |   Master Build   |   Development Build   |
 |--------:|-----------------:|----------------------:|
 | AppVeyor| [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/master?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/development?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/development)|
-<!--
-| AppVeyor (Windows) | Master |[![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/master?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/master)|
-| AppVeyor (Windows) | Development |[![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/development?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/development)|-->
+
