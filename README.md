@@ -1,8 +1,7 @@
-
-#CoreSpeed
+# CoreSpeed
 =========
 
-CoreSpeed is an implementation of SpeedTest.Net using .Net Standard.  Included is a test client for both .NET Core (ConsoleClient) and a UWP console app (UWPConsoleClient) for testing.  
+CoreSpeed is an implementation of SpeedTest.Net using .Net Standard for the library.  Included is a test client for .NET Core (ConsoleClient).  
 
 Currently the only CLI cross-platform solution is a Python script, so I wanted to build a robust compiled solution that can run cross-platform and independent of having to have Python and it's various modules installed.
 
@@ -14,4 +13,3 @@ Currently the only CLI cross-platform solution is a Python script, so I wanted t
 | Source  |   Master Build   |   Development Build   |
 |--------:|-----------------:|----------------------:|
 | AppVeyor| [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/master?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/development?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/development)|
-
