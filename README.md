@@ -10,6 +10,6 @@ Currently the only CLI cross-platform solution is a Python script, so I wanted t
 
 ## Build status of branches
 
-| Source  |   Master Build   |   Development Build   |
-|--------:|-----------------:|----------------------:|
-| AppVeyor| [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/master?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/development?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/development)|
+| Source  |   Master Build   |   Development Build   |   v1.1.0 Build   | 
+|--------:|-----------------:|----------------------:|----------------------:|
+| AppVeyor| [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/master?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/master) | [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/development?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/development)| [![Build status](https://ci.appveyor.com/api/projects/status/o4ysawi7nqumr03w/branch/development?svg=true)](https://ci.appveyor.com/project/tibmeister/corespeed/branch/v1.1.0)|
