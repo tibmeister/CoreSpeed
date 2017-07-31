@@ -1,5 +1,4 @@
-﻿#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -13,11 +12,18 @@ using System.Net.Http;
 
 namespace CoreSpeed
 {
+    public static class ConvertDistance
+    {
+        public static double ConvertMilesToKilometers(double miles) => miles * 1.609344;
+
+        public static double ConvertKilometersToMiles(double kilometers) => kilometers * 0.621371192;
+    }
+
     public class CoreSpeedClient
     {
         private const string ConfigUrl = "http://www.speedtest.net/speedtest-config.php";
         private const string ServersUrl = "http://www.speedtest.net/speedtest-servers.php";
-        private readonly int[] downloadSizes = { 350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000 };
+        private readonly int[] downloadSizes = { 350, 500, 750, 1000, 1500, 2000 };//, 2500, 3000, 3500, 4000 };
         private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private const int MaxUploadSize = 4;
 
@@ -179,4 +185,3 @@ namespace CoreSpeed
         }
     }
 }
-#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

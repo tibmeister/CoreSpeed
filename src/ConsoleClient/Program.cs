@@ -62,21 +62,20 @@ namespace ConsoleClient
             return servers;
         }
 
-        private static void PrintServerDetails(Server server)
-        {
-            Console.WriteLine("Hosted by {0} ({1}/{2}), distance: {3}km, latency: {4}ms", server.Sponsor, server.Name,
-                server.Country, (int)server.Distance / 1000, server.Latency);
-        }
+        private static void PrintServerDetails(Server server) => Console.WriteLine($"Hosted by {server.Sponsor} ({server.Name}/{server.Country}), " +
+                $"distance: {(int)server.Distance / 1000}km " +
+                $"({Math.Round(ConvertDistance.ConvertKilometersToMiles((int)server.Distance / 1000), 2)}mi), " +
+                $"latency: {server.Latency}ms");
 
         private static void PrintSpeed(string type, double speed)
         {
             if (speed > 1024)
             {
-                Console.WriteLine("{0} speed: {1} Mbps", type, Math.Round(speed / 1024 / 1024, 2));
+                Console.WriteLine($"{type} speed: {Math.Round(speed / 1024 / 1024, 2)} Mbps");
             }
             else
             {
-                Console.WriteLine("{0} speed: {1} Kbps", type, Math.Round(speed / 1024, 2));
+                Console.WriteLine($"{type} speed: {Math.Round(speed / 1024, 2)} Kbps");
             }
         }
     }
