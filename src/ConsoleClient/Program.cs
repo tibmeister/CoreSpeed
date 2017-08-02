@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreSpeed;
 using CoreSpeed.Models;
+using Microsoft.Extensions.CommandLineUtils;
 
 namespace ConsoleClient
 {
@@ -17,47 +18,107 @@ namespace ConsoleClient
 
         public static void Main(string[] args)
         {
-            client = new CoreSpeedClient();
+            string delimiter = ",";
+            bool simpleRun = false;
+            var app = new CommandLineApplication();
+            bool ultraRun = false;
 
-            Console.WriteLine("Getting Config...");
-            settings = client.GetSettings();
+            app.Name = "ConsoleClient";
+            app.Description = "Console Client for CoreSpeed";
+            app.HelpOption("-?|-h|--help");
 
-            var servers = SelectServers();
-            var bestServer = SelectBestServer(servers);
+            var simple = app.Option("-s|--simple",
+                "Run in simple mode",
+                CommandOptionType.NoValue);
 
-            Console.WriteLine("Testing speed...");
+            var delimited = app.Option("-d|--delimited",
+                $"Run in delimited mode, using the provided delimeter" +
+                $"\nThe format is ping<delimeter>download speed<delimeter>upload speed",
+                CommandOptionType.SingleValue);
 
-            var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
-            PrintSpeed("Download", downloadSpeed);
 
-            var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
-            PrintSpeed("Upload", uploadSpeed);
+            app.OnExecute(() =>
+            {
+                if (simple.HasValue() && delimited.HasValue())
+                {
+                    Console.WriteLine("simple and delimeted modes cannot be run together\n");
+                    return (20);
+                }
 
-            Console.WriteLine("Press a key to exit.");
-            Console.ReadKey();
+                if (simple.HasValue())
+                {
+                    simpleRun = true;
+                }
 
+                if (delimited.HasValue())
+                {
+                    delimiter = delimited.Value();
+                    ultraRun = true;
+                }
+
+                client = new CoreSpeedClient();
+
+                Console.Write(simpleRun ? string.Empty : (ultraRun ? string.Empty : "Getting Config..\n"));
+
+                settings = client.GetSettings();
+
+                settings.Download.ThreadsPerUrl = 8;
+                settings.Upload.ThreadsPerUrl = 8;
+                var servers = SelectServers(simpleRun, ultraRun);
+                var bestServer = SelectBestServer(servers, simpleRun, ultraRun);
+
+                Console.Write(simpleRun ? string.Empty : (ultraRun ? string.Empty : "Testing speed...\n"));
+
+                var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
+                PrintSpeed("Download", downloadSpeed, simpleRun, ultraRun, delimiter);
+
+                var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
+                PrintSpeed("Upload", uploadSpeed, simpleRun, ultraRun, delimiter);
+
+                if (!ultraRun)
+                {
+                    Console.WriteLine("Press a key to exit.");
+                    Console.ReadKey();
+                }
+
+                return (0);
+            });
+
+            app.Execute(args);
         }
 
-        private static Server SelectBestServer(IEnumerable<Server> servers)
+        private static Server SelectBestServer(IEnumerable<Server> servers, bool simple, bool ultra)
         {
-            Console.WriteLine();
-            Console.WriteLine("Best server by latency:");
             var bestServer = servers.OrderBy(x => x.Latency).First();
-            PrintServerDetails(bestServer);
-            Console.WriteLine();
+
+            if (!(simple || ultra))
+            {
+                Console.WriteLine();
+                Console.WriteLine("Best server by latency:");
+
+                PrintServerDetails(bestServer);
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.Write(ultra ? $"{bestServer.Latency}" : $"Ping: {bestServer.Latency} ms\n");
+            }
+
             return bestServer;
         }
 
-        private static IEnumerable<Server> SelectServers()
+        private static IEnumerable<Server> SelectServers(bool simple, bool ultra)
         {
-            Console.WriteLine();
-            Console.WriteLine("Selecting best server by distance...");
+            Console.Write(simple ? string.Empty : (ultra ? string.Empty : "Selecting best server by distance...\n\n"));
             var servers = settings.Servers.Where(s => s.Country.Equals(DefaultCountry1)).Take(10).ToList();
 
             foreach (var server in servers)
             {
                 server.Latency = client.TestServerLatency(server);
-                PrintServerDetails(server);
+                if (!(simple || ultra))
+                {
+                    PrintServerDetails(server);
+                }
             }
             return servers;
         }
@@ -67,16 +128,20 @@ namespace ConsoleClient
                 $"({Math.Round(ConvertDistance.ConvertKilometersToMiles((int)server.Distance / 1000), 2)}mi), " +
                 $"latency: {server.Latency}ms");
 
-        private static void PrintSpeed(string type, double speed)
+        private static void PrintSpeed(string type, double speed, bool simple, bool ultra, string delimeter)
         {
+            string speedText = "";
+
             if (speed > 1024)
             {
-                Console.WriteLine($"{type} speed: {Math.Round(speed / 1024 / 1024, 2)} Mbps");
+                speedText = ultra ? $"{delimeter}{Math.Round(speed / 1024 / 1024, 2)}" : $"{Math.Round(speed / 1024 / 1024, 2)} Mbps";
             }
             else
             {
-                Console.WriteLine($"{type} speed: {Math.Round(speed / 1024, 2)} Kbps");
+                speedText = ultra ? $"{delimeter}{Math.Round(speed / 1024, 2)}" : $"{Math.Round(speed / 1024, 2)} Kbps";
             }
+
+            Console.Write(simple ? $"{type}: {speedText}\n" : (ultra ? $"{speedText}" : $"{type} speed: {speedText}\n"));
         }
     }
 }

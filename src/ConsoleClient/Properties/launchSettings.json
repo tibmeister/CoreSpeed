@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "ConsoleClient": {
+      "commandName": "Project"
+    }
+  }
+}
