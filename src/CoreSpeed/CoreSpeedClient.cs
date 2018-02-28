@@ -23,7 +23,7 @@ namespace CoreSpeed
     {
         private const string ConfigUrl = "http://www.speedtest.net/speedtest-config.php";
         private const string ServersUrl = "http://www.speedtest.net/speedtest-servers.php";
-        private readonly int[] downloadSizes = { 350, 500, 750, 1000, 1500, 2000 };//, 2500, 3000, 3500, 4000 };
+        private readonly int[] downloadSizes = { 350, 500, 750, 1000, 1500, 2000, 2500, 3000, 3500, 4000 };
         private const string Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         private const int MaxUploadSize = 4;
 
