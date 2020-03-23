@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CoreSpeed;
 using CoreSpeed.Models;
-using Microsoft.Extensions.CommandLineUtils;
+using McMaster.Extensions.CommandLineUtils;
 
 namespace ConsoleClient
 {
