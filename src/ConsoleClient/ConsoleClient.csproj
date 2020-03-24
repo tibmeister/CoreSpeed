@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="ahd.Graphite" Version="2.2.0" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.6.0" />
   </ItemGroup>
 

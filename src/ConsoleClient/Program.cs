@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CoreSpeed;
 using CoreSpeed.Models;
 using McMaster.Extensions.CommandLineUtils;
+using ahd.Graphite;
 
 namespace ConsoleClient
 {
@@ -42,7 +43,7 @@ namespace ConsoleClient
                 CommandOptionType.SingleValue);
 
             var graphitePrefix = app.Option("-x|--graphiteprefix",
-                $"Prefix for graphite data",
+                $"Prefix for graphite data, for instance a site or location name/code",
                 CommandOptionType.SingleValue);
 
             var listServers = app.Option("-l|--list",
@@ -116,7 +117,7 @@ namespace ConsoleClient
 
                 Console.Write(simpleRun || ultraRun ? string.Empty : "Testing speed...\n");
 
-                if(ultraRun)
+                if (ultraRun)
                 {
                     PrintLatency(bestServer.Latency, simpleRun, ultraRun, delimiter);
                 }
@@ -127,6 +128,17 @@ namespace ConsoleClient
                 var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
                 PrintSpeed("Upload", uploadSpeed, simpleRun, ultraRun, delimiter);
 
+                // If we specify to save the data into graphite, then let's do that now
+                if (graphite.HasValue())
+                {
+                    var timeStamp = DateTime.Now;
+
+                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix}.dl", downloadSpeed, timeStamp);
+                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix}.upl", uploadSpeed, timeStamp);
+                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix}.ms", bestServer.Latency, timeStamp);
+                }
+
+                // If we are not in delimiter mode, i.e. running from a script, wait for user input before closing
                 if (!ultraRun)
                 {
                     Console.WriteLine("Press a key to exit.");
@@ -137,6 +149,18 @@ namespace ConsoleClient
             });
 
             app.Execute(args);
+        }
+
+        private static void PushDataToGraphite(string server, string series, double value, DateTime timeStamp)
+        {
+            var client = new GraphiteClient(server);
+            client.Send(series, value, timeStamp);
+
+            //var datapoints = new[]
+            //{
+            //    new Datapoint(series,value,DateTime.Now),
+            //};
+
         }
 
         private static Server SelectBestServer(IEnumerable<Server> servers, bool simple, bool ultra, bool singleServer)
@@ -205,7 +229,7 @@ namespace ConsoleClient
             Console.Write(simple ? $"{type}: {speedText}\n" : (ultra ? $"{speedText}" : $"{type} speed: {speedText}\n"));
         }
 
-        private static void PrintLatency(int latency,bool simple,bool ultra,string delimeter)
+        private static void PrintLatency(int latency, bool simple, bool ultra, string delimeter)
         {
             Console.Write(simple ? $"Ping: {latency}ms\n" : (ultra ? $"{latency}" : $"Ping: {latency}ms\n"));
         }
