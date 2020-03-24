@@ -13,7 +13,8 @@ namespace CoreSpeed
     internal class CoreSpeedWebClient : HttpClient
     {
         public int ConnectionLimit { get; set; } = 10;
-        public new int Timeout {
+        public new int Timeout
+        {
             get
             {
                 return this.Timeout;
@@ -62,11 +63,11 @@ namespace CoreSpeed
             string content = "";
 
             Uri uri = AddTimeStampToUrl(new Uri(Url));
-            HttpResponseMessage response = await GetAsync(uri);            
-            
+            HttpResponseMessage response = await GetAsync(uri);
+
             if (response.IsSuccessStatusCode)
             {
-                content = await response.Content.ReadAsStringAsync();                
+                content = await response.Content.ReadAsStringAsync();
             }
 
             return content;
@@ -80,7 +81,7 @@ namespace CoreSpeed
             query = "x=";
             query += DateTime.Now.ToFileTime().ToString(CultureInfo.InvariantCulture);
             uriBuilder.Query = query.ToString();
-            return uriBuilder.Uri;   
+            return uriBuilder.Uri;
         }
     }
 }

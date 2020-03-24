@@ -114,10 +114,18 @@ namespace ConsoleClient
 
             foreach (var server in servers)
             {
-                server.Latency = client.TestServerLatency(server);
-                if (!(simple || ultra))
+                try
                 {
-                    PrintServerDetails(server);
+                    server.Latency = client.TestServerLatency(server);
+                    if (!(simple || ultra))
+                    {
+                        PrintServerDetails(server);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    server.Latency = 64445; //if we have a problem with this server, set the latency so high that it will never get selected.
+                    //Console.WriteLine(ex.Message);
                 }
             }
             return servers;
