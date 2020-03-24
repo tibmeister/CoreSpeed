@@ -22,6 +22,7 @@ namespace ConsoleClient
             bool simpleRun = false;
             var app = new CommandLineApplication();
             bool ultraRun = false;
+            bool singleServer = false;
 
             app.Name = "ConsoleClient";
             app.Description = "Console Client for CoreSpeed";
@@ -36,13 +37,34 @@ namespace ConsoleClient
                 $"\nThe format is ping<delimeter>download speed<delimeter>upload speed",
                 CommandOptionType.SingleValue);
 
+            var graphite = app.Option("-g|--graphiteserver",
+                $"Output the data to the specified graphite server",
+                CommandOptionType.SingleValue);
+
+            var graphitePrefix = app.Option("-x|--graphiteprefix",
+                $"Prefix for graphite data",
+                CommandOptionType.SingleValue);
+
+            var listServers = app.Option("-l|--list",
+                $"List available servers and ID",
+                CommandOptionType.NoValue);
+
+            var serverID = app.Option("-i|--serverid",
+                $"Use specific server based on ID gathered from the list option",
+                CommandOptionType.SingleValue);
 
             app.OnExecute(() =>
             {
                 if (simple.HasValue() && delimited.HasValue())
                 {
-                    Console.WriteLine("simple and delimeted modes cannot be run together\n");
+                    Console.WriteLine("simple and delimited modes cannot be run together\n");
                     return (20);
+                }
+
+                if (graphite.HasValue() && !graphitePrefix.HasValue())
+                {
+                    Console.WriteLine("you must supply a prefix when using a graphite server\n");
+                    return (22);
                 }
 
                 if (simple.HasValue())
@@ -62,12 +84,42 @@ namespace ConsoleClient
 
                 settings = client.GetSettings();
 
+                if (listServers.HasValue())
+                {
+                    simpleRun = true;
+                    var listservers = SelectServers(simpleRun, ultraRun, servercount: 15);
+
+                    Console.WriteLine("Printing top 15 servers");
+                    var list = listservers.OrderBy(x => x.Latency).Select(
+                        x => new Tuple<int, string, string, string>(x.Id, x.Sponsor, x.Name, x.Latency + "ms")
+                        ).ToList();
+                    list.ForEach(Console.WriteLine);
+                    return (0);
+                }
+
                 settings.Download.ThreadsPerUrl = 8;
                 settings.Upload.ThreadsPerUrl = 8;
-                var servers = SelectServers(simpleRun, ultraRun);
-                var bestServer = SelectBestServer(servers, simpleRun, ultraRun);
 
-                Console.Write(simpleRun ? string.Empty : (ultraRun ? string.Empty : "Testing speed...\n"));
+                if (serverID.HasValue())
+                {
+                    singleServer = true;
+                }
+
+                var servers = SelectServers(simpleRun, ultraRun, singleServer);
+                var bestServer = SelectBestServer(servers, simpleRun, ultraRun, singleServer);
+
+                if (serverID.HasValue())
+                {
+                    bestServer = (Server)servers.Where(x => x.Id == int.Parse(serverID.Value())).FirstOrDefault();
+                    Console.Write(simpleRun || ultraRun ? string.Empty : "Using server : " + bestServer.Sponsor + " (" + bestServer.Latency + "ms)\n");
+                }
+
+                Console.Write(simpleRun || ultraRun ? string.Empty : "Testing speed...\n");
+
+                if(ultraRun)
+                {
+                    PrintLatency(bestServer.Latency, simpleRun, ultraRun, delimiter);
+                }
 
                 var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
                 PrintSpeed("Download", downloadSpeed, simpleRun, ultraRun, delimiter);
@@ -87,11 +139,11 @@ namespace ConsoleClient
             app.Execute(args);
         }
 
-        private static Server SelectBestServer(IEnumerable<Server> servers, bool simple, bool ultra)
+        private static Server SelectBestServer(IEnumerable<Server> servers, bool simple, bool ultra, bool singleServer)
         {
             var bestServer = servers.OrderBy(x => x.Latency).First();
 
-            if (!(simple || ultra))
+            if (!(simple || ultra || singleServer))
             {
                 Console.WriteLine();
                 Console.WriteLine("Best server by latency:");
@@ -99,7 +151,7 @@ namespace ConsoleClient
                 PrintServerDetails(bestServer);
                 Console.WriteLine();
             }
-            else
+            else if (!singleServer)
             {
                 Console.Write(ultra ? $"{bestServer.Latency}" : $"Ping: {bestServer.Latency} ms\n");
             }
@@ -107,22 +159,23 @@ namespace ConsoleClient
             return bestServer;
         }
 
-        private static IEnumerable<Server> SelectServers(bool simple, bool ultra)
+        private static IEnumerable<Server> SelectServers(bool simple, bool ultra, bool singleServer = false, int servercount = 10)
         {
-            Console.Write(simple ? string.Empty : (ultra ? string.Empty : "Selecting best server by distance...\n\n"));
-            var servers = settings.Servers.Where(s => s.Country.Equals(DefaultCountry1)).Take(10).ToList();
+            Console.Write(simple || ultra || singleServer ? string.Empty : "Selecting best server by distance...\n\n");
+
+            var servers = settings.Servers.Where(s => s.Country.Equals(DefaultCountry1)).Take(servercount).ToList();
 
             foreach (var server in servers)
             {
                 try
                 {
                     server.Latency = client.TestServerLatency(server);
-                    if (!(simple || ultra))
+                    if (!(simple || ultra || singleServer))
                     {
                         PrintServerDetails(server);
                     }
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     server.Latency = 64445; //if we have a problem with this server, set the latency so high that it will never get selected.
                     //Console.WriteLine(ex.Message);
@@ -150,6 +203,11 @@ namespace ConsoleClient
             }
 
             Console.Write(simple ? $"{type}: {speedText}\n" : (ultra ? $"{speedText}" : $"{type} speed: {speedText}\n"));
+        }
+
+        private static void PrintLatency(int latency,bool simple,bool ultra,string delimeter)
+        {
+            Console.Write(simple ? $"Ping: {latency}ms\n" : (ultra ? $"{latency}" : $"Ping: {latency}ms\n"));
         }
     }
 }
