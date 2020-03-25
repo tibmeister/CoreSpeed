@@ -99,14 +99,14 @@ namespace CoreSpeed
         /// Test upload speed to server
         /// </summary>
         /// <returns>Upload speed in Kbps</returns>
-        public double TestUploadSpeed(Server server, int simultaniousUploads = 2, int retryCount = 2)
+        public double TestUploadSpeed(Server server, int simultaniousUploads = 1, int retryCount = 2)
         {
             var testData = GenerateUploadData(retryCount);
 
             return TestSpeed(testData, async (client, uploadData) =>
             {
                 await client.PostAsync(server.Url, new StringContent(uploadData.ToString()));
-                
+
                 return uploadData[0].Length;
             }, simultaniousUploads);
         }
@@ -123,6 +123,7 @@ namespace CoreSpeed
             {
                 await throttler.WaitAsync().ConfigureAwait(true);
                 var client = new CoreSpeedWebClient();
+
                 try
                 {
                     var size = await doWork(client, data).ConfigureAwait(true);
@@ -133,15 +134,16 @@ namespace CoreSpeed
                     client.Dispose();
                     throttler.Release();
                 }
+
             }).ToArray();
 
             Task.Run(() => downloadTasks);
 
+
+            double totalSize = downloadTasks.Sum(task => task.Result);
+
             timer.Stop();
 
-            //double totalSize = downloadTasks.Sum(task => task.Result);
-            double totalSize = downloadTasks.Sum(task => task.Result);
-            
             return (totalSize * 8 / 1024) / ((double)timer.ElapsedMilliseconds / 1000);
         }
 

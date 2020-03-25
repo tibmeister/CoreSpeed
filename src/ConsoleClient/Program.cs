@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using ahd.Graphite;
 using CoreSpeed;
 using CoreSpeed.Models;
 using McMaster.Extensions.CommandLineUtils;
-using ahd.Graphite;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ConsoleClient
 {
@@ -24,10 +23,15 @@ namespace ConsoleClient
             var app = new CommandLineApplication();
             bool ultraRun = false;
             bool singleServer = false;
+            bool quiet = false;
 
             app.Name = "ConsoleClient";
             app.Description = "Console Client for CoreSpeed";
             app.HelpOption("-?|-h|--help");
+
+            var quietSwitch = app.Option("-q|--quiet",
+                "Run in quiet mode, for scripting",
+                CommandOptionType.NoValue);
 
             var simple = app.Option("-s|--simple",
                 "Run in simple mode",
@@ -79,6 +83,11 @@ namespace ConsoleClient
                     ultraRun = true;
                 }
 
+                if (quietSwitch.HasValue())
+                {
+                    quiet = true;
+                }
+
                 client = new CoreSpeedClient();
 
                 Console.Write(simpleRun ? string.Empty : (ultraRun ? string.Empty : "Getting Config..\n"));
@@ -88,7 +97,7 @@ namespace ConsoleClient
                 if (listServers.HasValue())
                 {
                     simpleRun = true;
-                    var listservers = SelectServers(simpleRun, ultraRun, servercount: 15);
+                    var listservers = SelectServers(simpleRun, ultraRun, quiet, servercount: 15);
 
                     Console.WriteLine("Printing top 15 servers");
                     var list = listservers.OrderBy(x => x.Latency).Select(
@@ -107,39 +116,46 @@ namespace ConsoleClient
                 }
 
                 var servers = SelectServers(simpleRun, ultraRun, singleServer);
-                var bestServer = SelectBestServer(servers, simpleRun, ultraRun, singleServer);
+                var bestServer = SelectBestServer(servers, simpleRun, ultraRun, quiet, singleServer);
 
                 if (serverID.HasValue())
                 {
                     bestServer = (Server)servers.Where(x => x.Id == int.Parse(serverID.Value())).FirstOrDefault();
-                    Console.Write(simpleRun || ultraRun ? string.Empty : "Using server : " + bestServer.Sponsor + " (" + bestServer.Latency + "ms)\n");
+                    Console.Write(simpleRun || ultraRun || quiet ? string.Empty : "Using server : " + bestServer.Sponsor + " (" + bestServer.Latency + "ms)\n");
                 }
 
-                Console.Write(simpleRun || ultraRun ? string.Empty : "Testing speed...\n");
+                Console.Write(simpleRun || ultraRun || quiet ? string.Empty : "Testing speed...\n");
 
-                if (ultraRun)
+                if (ultraRun || !quiet)
                 {
-                    PrintLatency(bestServer.Latency, simpleRun, ultraRun, delimiter);
+                    PrintLatency(bestServer.Latency, simpleRun, ultraRun, quiet, delimiter);
                 }
 
                 var downloadSpeed = client.TestDownloadSpeed(bestServer, settings.Download.ThreadsPerUrl);
-                PrintSpeed("Download", downloadSpeed, simpleRun, ultraRun, delimiter);
+
+                if (!quiet)
+                {
+                    PrintSpeed("Download", downloadSpeed, simpleRun, ultraRun, quiet, delimiter);
+                }
 
                 var uploadSpeed = client.TestUploadSpeed(bestServer, settings.Upload.ThreadsPerUrl);
-                PrintSpeed("Upload", uploadSpeed, simpleRun, ultraRun, delimiter);
+                if (!quiet)
+                {
+                    PrintSpeed("Upload", uploadSpeed, simpleRun, ultraRun, quiet, delimiter);
+                }
 
                 // If we specify to save the data into graphite, then let's do that now
                 if (graphite.HasValue())
                 {
                     var timeStamp = DateTime.Now;
 
-                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix}.dl", downloadSpeed, timeStamp);
-                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix}.upl", uploadSpeed, timeStamp);
-                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix}.ms", bestServer.Latency, timeStamp);
+                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix.Value()}.dl", downloadSpeed, timeStamp);
+                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix.Value()}.upl", uploadSpeed, timeStamp);
+                    PushDataToGraphite(graphite.Value(), $"speedtest.{graphitePrefix.Value()}.ms", bestServer.Latency, timeStamp);
                 }
 
                 // If we are not in delimiter mode, i.e. running from a script, wait for user input before closing
-                if (!ultraRun)
+                if (!ultraRun && !quiet)
                 {
                     Console.WriteLine("Press a key to exit.");
                     Console.ReadKey();
@@ -156,6 +172,7 @@ namespace ConsoleClient
             var client = new GraphiteClient(server);
             client.Send(series, value, timeStamp);
 
+
             //var datapoints = new[]
             //{
             //    new Datapoint(series,value,DateTime.Now),
@@ -163,11 +180,11 @@ namespace ConsoleClient
 
         }
 
-        private static Server SelectBestServer(IEnumerable<Server> servers, bool simple, bool ultra, bool singleServer)
+        private static Server SelectBestServer(IEnumerable<Server> servers, bool simple, bool ultra, bool singleServer, bool quiet)
         {
             var bestServer = servers.OrderBy(x => x.Latency).First();
 
-            if (!(simple || ultra || singleServer))
+            if (!(simple || ultra || singleServer || quiet))
             {
                 Console.WriteLine();
                 Console.WriteLine("Best server by latency:");
@@ -183,7 +200,7 @@ namespace ConsoleClient
             return bestServer;
         }
 
-        private static IEnumerable<Server> SelectServers(bool simple, bool ultra, bool singleServer = false, int servercount = 10)
+        private static IEnumerable<Server> SelectServers(bool simple, bool ultra, bool quiet, bool singleServer = false, int servercount = 10)
         {
             Console.Write(simple || ultra || singleServer ? string.Empty : "Selecting best server by distance...\n\n");
 
@@ -194,7 +211,7 @@ namespace ConsoleClient
                 try
                 {
                     server.Latency = client.TestServerLatency(server);
-                    if (!(simple || ultra || singleServer))
+                    if (!(simple || ultra || singleServer || quiet))
                     {
                         PrintServerDetails(server);
                     }
@@ -213,25 +230,25 @@ namespace ConsoleClient
                 $"({Math.Round(ConvertDistance.ConvertKilometersToMiles((int)server.Distance / 1000), 2)}mi), " +
                 $"latency: {server.Latency}ms");
 
-        private static void PrintSpeed(string type, double speed, bool simple, bool ultra, string delimeter)
+        private static void PrintSpeed(string type, double speed, bool simple, bool ultra, bool quiet, string delimeter)
         {
             string speedText = "";
 
             if (speed > 1024)
             {
-                speedText = ultra ? $"{delimeter}{Math.Round(speed / 1024 / 1024, 2)}" : $"{Math.Round(speed / 1024 / 1024, 2)} Mbps";
+                speedText = ultra && !quiet ? $"{delimeter}{Math.Round(speed / 1024, 2)}" : $"{Math.Round(speed / 1024, 2)} Mbps";
             }
             else
             {
-                speedText = ultra ? $"{delimeter}{Math.Round(speed / 1024, 2)}" : $"{Math.Round(speed / 1024, 2)} Kbps";
+                speedText = ultra && !quiet ? $"{delimeter}{Math.Round(speed, 2)}" : $"{Math.Round(speed, 2)} Kbps";
             }
 
-            Console.Write(simple ? $"{type}: {speedText}\n" : (ultra ? $"{speedText}" : $"{type} speed: {speedText}\n"));
+            Console.Write(simple ? $"{type}: {speedText}\n" : (ultra && !quiet ? $"{speedText}" : $"{type} speed: {speedText}\n"));
         }
 
-        private static void PrintLatency(int latency, bool simple, bool ultra, string delimeter)
+        private static void PrintLatency(int latency, bool simple, bool ultra, bool quiet, string delimeter)
         {
-            Console.Write(simple ? $"Ping: {latency}ms\n" : (ultra ? $"{latency}" : $"Ping: {latency}ms\n"));
+            Console.Write(simple ? $"Ping: {latency}ms\n" : (ultra && !quiet ? $"{latency}" : $"Ping: {latency}ms\n"));
         }
     }
 }
